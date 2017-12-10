@@ -7,6 +7,7 @@ var animbutton;
 
 var canvas; // canvas
 var container; // contenedor (no es un contenedor como tal, sólo es un rectángulo)
+var obj_frac_square;
 
 // Esta es una declaración de una clase de fabric, que me ripeé de los ejemplos
 var Cross = fabric.util.createClass(fabric.Object, {
@@ -102,6 +103,8 @@ function start() {
     
     
     canvas.add(container);
+
+
 
 }
 
