@@ -32,6 +32,7 @@ var numberFontSize;
 
 var mainDivisions = [], leftDivisions = [], rightDivisions = [];
 
+var save;
 var result;
 
 var maxDiv = 12;
@@ -628,6 +629,15 @@ function updateRightFraq() {
     updateRightFraqData();
 }
 
+function updateSaveButtonData() {
+    var data = {};
+    data.fontFamily = 'Helvetica';
+    data.fontSize = numHSLS.fontSize *2;
+    data.left = container.left + container.width - save.width  - container.width*0.1;
+    data.top = container.top + container.height*0.1;
+    save.set({left: data.left, top: data.top, fontFamily: data.fontFamily, fontSize: data.fontSize});
+}
+
 function setResultInitialSate(){
     var data = {};
     data.fontSize = numHSLS.fontSize * 2;
@@ -652,15 +662,16 @@ function clickHandlingMain(e, x, y) {
         mainSelected.push({x: x, y: y});
         e.target.set({fill: mainSquare.stroke});
     }
+    $("#selecteds").val(mainSelected.length);
     updateMainFraq();
 }
 
 function clickHandlingLeft(e, x, y) {
     if (typeof leftSelected != "undefined" && leftSelected != null) {
-        console.log('Estaba definido');
+        // console.log('Estaba definido');
         var index;
         if ((index = getindexOf(leftSelected, { x: x, y: y })) != -1) {
-            console.log('Pertenecia al arreglo');
+            // console.log('Pertenecia al arreglo');
             leftSelected.splice(index, 1);
             e.target.set({ fill: leftSquare.fill });
         } else {
@@ -668,7 +679,7 @@ function clickHandlingLeft(e, x, y) {
             e.target.set({ fill: leftSquare.stroke });
         }
     } else {
-        console.log('No estaba definido');
+        // console.log('No estaba definido');
         leftSelected = [];
         leftSelected.push({ x: x, y: y });
         e.target.set({ fill: leftSquare.stroke });
@@ -678,10 +689,10 @@ function clickHandlingLeft(e, x, y) {
 
 function clickHandlingRight(e, x, y) {
     if (typeof rightSelected != "undefined" && rightSelected != null) {
-        console.log('Estaba definido');
+        // console.log('Estaba definido');
         var index;
         if ((index = getindexOf(rightSelected, { x: x, y: y })) != -1) {
-            console.log('Pertenecia al arreglo');
+            // console.log('Pertenecia al arreglo');
             rightSelected.splice(index, 1);
             e.target.set({ fill: rightSquare.fill });
         } else {
@@ -689,7 +700,7 @@ function clickHandlingRight(e, x, y) {
             e.target.set({ fill: rightSquare.stroke });
         }
     } else {
-        console.log('No estaba definido');
+        // console.log('No estaba definido');
         rightSelected = [];
         rightSelected.push({ x: x, y: y });
         e.target.set({ fill: rightSquare.stroke });
@@ -708,9 +719,9 @@ function checkEquality() {
         leftVal = leftVal.toFixed(2);
         rightVal = parseInt(rightNum.text) / (parseInt(rightDen.text));
         rightVal = rightVal.toFixed(2);
-        console.log('mainVal ' + mainVal);
-        console.log('leftVal ' + leftVal);
-        console.log('rightVal ' +rightVal);
+        // console.log('mainVal ' + mainVal);
+        // console.log('leftVal ' + leftVal);
+        // console.log('rightVal ' +rightVal);
         if (mainVal == leftVal && mainVal == rightVal) {
             result.set({text: "Correcto"});
         } else {
@@ -721,10 +732,16 @@ function checkEquality() {
 }
 
 function clickHandling(e) {
-    console.log(e);
     var coords = {};
     if(e.target == checkButton) {
         checkEquality(e);
+    }else if(e.target == save){
+        // console.log('se clickeo save');
+        $("#rows").val(mainDivisions.length);
+        $("#columns").val(mainDivisions[0].length);
+        $("#selecteds").val(mainSelected.length);
+        
+        $("#form").submit();
     } else if ( (coords = isInMainDiv(e.target)).x != -1) {
         clickHandlingMain(e, coords.x, coords.y);
     } else if ((coords = isInLeftDiv(e.target)).x != -1) {
@@ -732,7 +749,15 @@ function clickHandling(e) {
     } else if ((coords = isInRightDiv(e.target)).x != -1) {
         clickHandlingRight(e, coords.x, coords.y);
     }
+    
 }
+function setInitialSliderPositions(columns, rows) {
+    numHSMS.set({text: columns.toString()});
+    numVSMS.set({text: rows.toString()});
+    ballHSMS.set({left: hSliderMS.left + (hSliderMS.width/maxDiv)*columns - ballHSMS.radius});
+    ballVSMS.set({ top: vSliderMS.top + (vSliderMS.height / maxDiv) * columns - ballVSMS.radius });
+}
+
 function setInitialDivisions(rows, columns, count) {
     var divisions = [];
     mainSelected = [];
@@ -740,6 +765,7 @@ function setInitialDivisions(rows, columns, count) {
     var r = rows, c = columns, height, width;
     height = square.height/r;
     width = square.width/c;
+
     for (var i = 0; i<r; i++) {
         divisions[i] = [];
         for(var j = 0; j<c; j++) {
@@ -755,26 +781,27 @@ function setInitialDivisions(rows, columns, count) {
             count = count - 1;
         }
     }
-    console.log(mainSelected);
     mainDivisions = divisions;
+    setInitialSliderPositions(columns, rows);
 }
 
 function setInitialProblem() {
     var url = new URL(window.location.href);
-    var rows, columns, selected, dianame;
+    var rows, columns, selecteds, idExercise;
     rows = url.searchParams.get('rows');
     columns = url.searchParams.get('columns');
-    selected = url.searchParams.get('selected');
-    dianame = url.searchParams.get('diaName');
+    selecteds = url.searchParams.get('selecteds');
+    idExercise = url.searchParams.get('idExercise');
     
-    $("#mainRows").val(rows);
-    $("#mainColumns").val(columns);
-    $("#mainSelected").val(selected);
+    $("#rows").val(rows);
+    $("#columns").val(columns);
+    $("#selecteds").val(selecteds);
+    $("#idExercise").val(idExercise);
     console.log('rows ' + rows);
     console.log('columns ' + columns);
-    console.log('selected ' + selected);
-    if (rows != null && columns != null && selected != null) {
-        setInitialDivisions(rows, columns, selected);
+    console.log('selected ' + selecteds);
+    if (rows != null && columns != null && selecteds != null) {
+        setInitialDivisions(rows, columns, selecteds);
         updateMainFraq();
     }
 }
@@ -1017,6 +1044,13 @@ function start() {
     
     updateMainFraqData();
 
+    save = new fabric.Text("Guardar");
+    save.hasBorders = save.hasControls = save.selectable = false;
+    save.hoverCursor = 'pointer';
+    canvas.add(save);
+
+    updateSaveButtonData();
+
     result = new fabric.Text("");
     result.hasBorders = result.hasControls = result.selectable = false;
     result.hoverCursor = 'default';
@@ -1031,9 +1065,8 @@ function start() {
     canvas.on({
         'object:moving': function(e) {
             dragHandling(e);
-            $("#mainRows".val(numHSMS.text));
-            $("#mainColumns".val(numVSMS.text));
-            $("#mainSelected".val(mainSelected.length));
+            $("#rows").val(numHSMS.text);
+            $("#columns").val(numVSMS.text);
 
         },
         'mouse:up': function(e) {
